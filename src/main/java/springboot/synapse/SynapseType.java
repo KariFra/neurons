@@ -1,4 +1,4 @@
-package example.synapse;
+package springboot.synapse;
 
 public enum SynapseType {
     CHEMICAL,

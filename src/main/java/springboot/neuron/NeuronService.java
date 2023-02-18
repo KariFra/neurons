@@ -1,4 +1,4 @@
-package example.neuron;
+package springboot.neuron;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,8 +18,8 @@ public class NeuronService {
     private final NeuronRepository neuronRepository;
     private final ObjectMapper objectMapper;
 
-    public NeuronDto getNeuron(Long id) {
-        return objectMapper.convertValue(neuronRepository.getReferenceById(id), NeuronDto.class);
+    public NeuronDto getNeuron(UUID id) {
+        return objectMapper.convertValue(neuronRepository.getByNeuronId(id), NeuronDto.class);
     }
 
     public NeuronDto createNeuron() {
@@ -47,7 +48,7 @@ public class NeuronService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteNeurons(List<Long> ids) {
+    public void deleteNeurons(List<UUID> ids) {
         neuronRepository.deleteAllById(ids);
     }
 

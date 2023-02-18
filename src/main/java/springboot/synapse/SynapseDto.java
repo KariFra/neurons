@@ -1,4 +1,4 @@
-package example.synapse;
+package springboot.synapse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package example.neuron;
+package springboot.neuron;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -7,16 +7,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/neuron")
+@RequestMapping("/neuron")
 @RequiredArgsConstructor
 public class NeuronController {
 
     private final NeuronService neuronService;
+    private final NeuronProperties neuronProperties;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<NeuronDto> getNeuron(@PathVariable("id") Long id) {
+    public ResponseEntity<NeuronDto> getNeuron(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(neuronService.getNeuron(id));
     }
 
@@ -26,7 +28,7 @@ public class NeuronController {
     }
 
     @DeleteMapping()
-    public ResponseEntity deleteNeuronsWithIds(@RequestParam List<Long> ids) {
+    public ResponseEntity deleteNeuronsWithIds(@RequestParam List<UUID> ids) {
         neuronService.deleteNeurons(ids);
         return ResponseEntity.ok().build();
     }
@@ -35,15 +37,15 @@ public class NeuronController {
     public ResponseEntity createNeuron() {
         var createdNeuron = neuronService.createNeuron();
         var headers = new HttpHeaders();
-        headers.add("location", "http://localhost:8081/api/" + createdNeuron.getNeuronId());
-        return new ResponseEntity(headers,HttpStatus.CREATED);
+        headers.add("location", neuronProperties.url() + "neuron/" + createdNeuron.getNeuronId());
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @PutMapping()
     public ResponseEntity updateNeuron(@RequestBody NeuronDto neuronDto) {
         neuronService.updateNeuron(neuronDto);
         var headers = new HttpHeaders();
-        headers.add("location", "http://localhost:8081/api/" + neuronDto.getNeuronId());
-        return new ResponseEntity(headers,HttpStatus.NO_CONTENT);
+        headers.add("location", neuronProperties.url() + "neuron/" + neuronDto.getNeuronId());
+        return new ResponseEntity(headers, HttpStatus.NO_CONTENT);
     }
 }

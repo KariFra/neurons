@@ -1,4 +1,4 @@
-package example.neuron;
+package springboot.neuron;
 
 
 import jakarta.persistence.*;

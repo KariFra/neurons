@@ -1,14 +1,16 @@
-package example.neuron;
+package springboot.neuron;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class NeuronDto {
-    private Long neuronId;
+    private UUID neuronId;
     private String position;
     private boolean isWorking;
 }

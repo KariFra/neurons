@@ -1,4 +1,4 @@
-package example.synapse;
+package springboot.synapse;
 
 import jakarta.persistence.*;
 import lombok.Data;
