@@ -27,9 +27,6 @@ class LymphocyteClientTest {
     @Autowired
     private MockRestServiceServer mockRestServiceServer;
 
-    LymphocyteClientTest() {
-    }
-
 
     @Test
     void lymphocyteClientSuccessfullyReturnsLymphocyte() {
