@@ -1,5 +1,7 @@
 package springboot.lymphocyte;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
@@ -25,20 +27,18 @@ class LymphocyteClientTest {
     private NeuronProperties neuronProperties;
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private MockRestServiceServer mockRestServiceServer;
 
 
     @Test
-    void lymphocyteClientSuccessfullyReturnsLymphocyte() {
-        String json = """
-                    {
-                    "id": 1,
-                        "type": "Type B",
-                        "identifiedInvader": false
-                }""";
+    void lymphocyteClientSuccessfullyReturnsLymphocyte() throws JsonProcessingException {
+        var lymphocyteDto = new LymphocyteDto(1L,"Type B",false);
         this.mockRestServiceServer
                 .expect(requestTo("/api/v1/lymph/1"))
-                .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(objectMapper.writeValueAsString(lymphocyteDto), MediaType.APPLICATION_JSON));
 
         LymphocyteDto result = lymphocyteClient.getLymphocyteId(1L);
 
