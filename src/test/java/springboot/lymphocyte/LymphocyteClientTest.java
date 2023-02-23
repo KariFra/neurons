@@ -2,46 +2,58 @@ package springboot.lymphocyte;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.client.MockRestServiceServer;
-import springboot.neuron.NeuronProperties;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-@Import({NeuronProperties.class, String.class})
-@RestClientTest(LymphocyteClient.class)
+
 @ActiveProfiles("test")
 class LymphocyteClientTest {
 
-    @Autowired
     private LymphocyteClient lymphocyteClient;
 
-    @Autowired
-    private NeuronProperties neuronProperties;
+    private MockWebServer mockWebServer;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @BeforeEach
+    void setUp() {
+        mockWebServer = new MockWebServer();
+        lymphocyteClient = new LymphocyteClient(WebClient.builder().build());
+    }
 
-    @Autowired
-    private MockRestServiceServer mockRestServiceServer;
-
+    @AfterEach
+    void tearDown() throws IOException {
+        mockWebServer.close();
+    }
 
     @Test
     void lymphocyteClientSuccessfullyReturnsLymphocyte() throws JsonProcessingException {
-        var lymphocyteDto = new LymphocyteDto(1L,"Type B",false);
-        this.mockRestServiceServer
-                .expect(requestTo("/api/v1/lymph/1"))
-                .andRespond(withSuccess(objectMapper.writeValueAsString(lymphocyteDto), MediaType.APPLICATION_JSON));
+        var lymphocyteDto = new LymphocyteDto(1L, "Type B", false);
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .setResponseCode(200)
+                        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setBody(new ObjectMapper().writeValueAsString(lymphocyteDto))
+        );
+        Mono<LymphocyteDto> monoResult = lymphocyteClient.getLymphocyteIdAsync(1L);
 
-        LymphocyteDto result = lymphocyteClient.getLymphocyteId(1L);
-
-        assertNotNull(result);
+        assertNotNull(monoResult);
+        monoResult.map(result -> {
+            assertEquals(1L, result.getId());
+            assertEquals("Type B", result.getType());
+            assertEquals(false, result.isIdentifiedInvader());
+            return null;
+        });
     }
 }

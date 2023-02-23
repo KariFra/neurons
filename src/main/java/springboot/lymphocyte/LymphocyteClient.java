@@ -1,27 +1,24 @@
 package springboot.lymphocyte;
 
-import springboot.neuron.NeuronProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 
 @Component
 public class LymphocyteClient {
-    private final String PATH = "/api/v1/lymph";
-    private final NeuronProperties neuronProperties;
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
 
-    public LymphocyteClient(NeuronProperties neuronProperties, RestTemplateBuilder restTemplateBuilder) {
-        this.neuronProperties = neuronProperties;
-        this.restTemplate = restTemplateBuilder.build();
+    public LymphocyteClient(WebClient webClient) {
+        this.webClient = webClient;
     }
 
-    public LymphocyteDto getLymphocyteId(Long lymphocyteId) {
-        return restTemplate.getForObject(neuronProperties.lymphocyteUrl() + PATH + "/" + lymphocyteId, LymphocyteDto.class);
+    public Mono<LymphocyteDto> getLymphocyteIdAsync(Long lymphocyteId) {
+        return webClient.get().uri("/" + lymphocyteId)
+                .retrieve().bodyToMono(LymphocyteDto.class);
     }
 
-    public void createLymphocyte() {
-        restTemplate.postForEntity(neuronProperties.lymphocyteUrl() + PATH, null, Void.class);
+    public void createLymphocyteAsync() {
+        webClient.post().retrieve();
     }
 }
